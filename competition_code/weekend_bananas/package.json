@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "npm run build && node ./out/index.js",
-    "startDev": "node ./out/index.js",    
+    "startDev": "node ./out/index.js",
     "link": "npm link ./lib",
     "build": "npx tsc --build --force ./tsconfig.json"
   },
@@ -18,5 +18,8 @@
     "slhpc23_arena": "file:lib",
     "spc22_arena": "file:lib",
     "yargs": "^17.6.2"
+  },
+  "dependencies": {
+    "typescript": "^4.9.5"
   }
 }

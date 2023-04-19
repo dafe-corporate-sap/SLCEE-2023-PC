@@ -1,0 +1,46 @@
+cd arena_server
+docker build . -t arena
+
+# setup
+# under user arena
+docker network create mongoCluster
+
+mkdir -p /home/arena/competition/data1
+mkdir -p /home/arena/competition/data2
+mkdir -p /home/arena/competition/data3
+
+openssl rand -base64 756 > /home/arena/competition/data1/keyFile
+cp /home/arena/competition/data1/keyFile /home/arena/competition/data2/keyFile 
+cp /home/arena/competition/data2/keyFile /home/arena/competition/data3/keyFile 
+
+sudo chmod 0600 /home/arena/competition/data1/keyFile
+sudo chmod 0600 /home/arena/competition/data2/keyFile
+sudo chmod 0600 /home/arena/competition/data3/keyFile
+
+docker run --rm -d -p 27017:27017 -v /home/arena/competition/data1:/data/db -e MONGO_INITDB_ROOT_USERNAME=mongoadmin -e MONGO_INITDB_ROOT_PASSWORD=secret --name mongo1 --network mongoCluster mongo:5 mongod --replSet myReplicaSet --bind_ip localhost,mongo1 --keyFile /data/db/keyFile
+docker run --rm -d -p 27018:27017 -v /home/arena/competition/data2:/data/db -e MONGO_INITDB_ROOT_USERNAME=mongoadmin -e MONGO_INITDB_ROOT_PASSWORD=secret --name mongo2 --network mongoCluster mongo:5 mongod --replSet myReplicaSet --bind_ip localhost,mongo2 --keyFile /data/db/keyFile
+docker run --rm -d -p 27019:27017 -v /home/arena/competition/data3:/data/db -e MONGO_INITDB_ROOT_USERNAME=mongoadmin -e MONGO_INITDB_ROOT_PASSWORD=secret --name mongo3 --network mongoCluster mongo:5 mongod --replSet myReplicaSet --bind_ip localhost,mongo3 --keyFile /data/db/keyFile
+
+docker run --rm -p 8080:8080 --network mongoCluster arena
+
+-----------------------------
+
+# app
+docker run --rm -p 8080:8080 --network mongoCluster arena
+docker run --rm -p 8080:8080 --network mongodb arena
+
+# mongodb replicaset
+docker network create mongoCluster
+openssl rand -base64 756 > keyFile
+
+docker run --rm -p 27017:27017 -v /home/i039818/competition/data1:/data/db -e MONGO_INITDB_ROOT_USERNAME=mongoadmin -e MONGO_INITDB_ROOT_PASSWORD=secret --name mongo1 --network mongoCluster mongo:5 mongod --replSet myReplicaSet --bind_ip localhost,mongo1 --keyFile /data/db/keyFile
+docker run --rm -p 27018:27017 -v /home/i039818/competition/data2:/data/db -e MONGO_INITDB_ROOT_USERNAME=mongoadmin -e MONGO_INITDB_ROOT_PASSWORD=secret --name mongo2 --network mongoCluster mongo:5 mongod --replSet myReplicaSet --bind_ip localhost,mongo2 --keyFile /data/db/keyFile
+docker run --rm -p 27019:27017 -v /home/i039818/competition/data3:/data/db -e MONGO_INITDB_ROOT_USERNAME=mongoadmin -e MONGO_INITDB_ROOT_PASSWORD=secret --name mongo3 --network mongoCluster mongo:5 mongod --replSet myReplicaSet --bind_ip localhost,mongo3 --keyFile /data/db/keyFile
+
+docker exec -it mongo1 mongosh -u mongoadmin -p secret
+rs.initiate({_id: "myReplicaSet", members: [{_id: 0, host: "mongo1"}, {_id: 1, host: "mongo2"}, {_id: 2, host: "mongo3"}]})
+
+
+
+docker network create mongodb
+docker run --rm --name mongodb -p 27017:27017 --network mongodb -v /home/i039818/competition/mongodbdata:/data/db mongodb/mongodb-community-server:$MONGODB_VERSION
