@@ -241,7 +241,7 @@
 				"additionalProperties": false
 			},
 			"MoveDTO": {
-				"description": "Match Response Movement DTO\r\ndeliver selectively timestamp, sequence along with DTO array of events",
+				"description": "Match Response Movement DTO\ndeliver selectively timestamp, sequence along with DTO array of events",
 				"properties": {
 					"at": {
 						"type": "string",
@@ -387,7 +387,7 @@
 					},
 					"randomSeed": {
 						"type": "string",
-						"description": "[Debug purposes] Optional seed value for pseudorandom generator used for randomization of starting player, card drawing.\r\nMatch creation returns a the input or generated seed so you can recreate any game during development.\r\nTo ignore randomization and pick first item always use \"norandom\".",
+						"description": "[Debug purposes] Optional seed value for pseudorandom generator used for randomization of starting player, card drawing.\nMatch creation returns a the input or generated seed so you can recreate any game during development.\nTo ignore randomization and pick first item always use \"norandom\".",
 						"example": "20221105HelloWorld"
 					},
 					"timeout": {
@@ -401,7 +401,7 @@
 			"CardSuitStack": {
 				"items": {},
 				"type": "array",
-				"description": "Card suit stack - for effective representation of bank collection ordered by suits\r\nconsists of a set of cardvalues in the given suit stack"
+				"description": "Card suit stack - for effective representation of bank collection ordered by suits\nconsists of a set of cardvalues in the given suit stack"
 			},
 			"Bank": {
 				"properties": {},
@@ -897,7 +897,7 @@
 						}
 					}
 				},
-				"description": "Retrieves the details of all Matches.\r\nPlayers will receive own matches only",
+				"description": "Retrieves the details of all Matches.\nPlayers will receive own matches only",
 				"summary": "Retrieves all Matches",
 				"tags": [
 					"Game",
@@ -1158,7 +1158,7 @@
 						}
 					}
 				},
-				"description": "Retrieves the details of an existing match.\r\nSupply the unique match ID and receive corresponding match details.",
+				"description": "Retrieves the details of an existing match.\nSupply the unique match ID and receive corresponding match details.",
 				"summary": "Retrieves a Match details",
 				"tags": [
 					"Game",
@@ -1296,7 +1296,7 @@
 						}
 					}
 				},
-				"description": "Execute an Action for an existing Match.\r\nSupply the unique match ID and add Action details",
+				"description": "Execute an Action for an existing Match.\nSupply the unique match ID and add Action details",
 				"summary": "Execute an Action for a Match",
 				"tags": [
 					"Game"
@@ -1655,7 +1655,7 @@
 						}
 					}
 				},
-				"description": "Retrieves the details of all Players.\r\nPlayers can retrieve only own information and details",
+				"description": "Retrieves the details of all Players.\nPlayers can retrieve only own information and details",
 				"summary": "Retrieves player information",
 				"tags": [
 					"Players"
@@ -1703,7 +1703,7 @@
 						}
 					}
 				},
-				"description": "Retrieves the details of an existing Player.\r\nSupply the unique Player ID and receive corresponding Player details.\r\nPlayers can retrieve only own information and details",
+				"description": "Retrieves the details of an existing Player.\nSupply the unique Player ID and receive corresponding Player details.\nPlayers can retrieve only own information and details",
 				"summary": "Retrieves player details",
 				"tags": [
 					"Players"

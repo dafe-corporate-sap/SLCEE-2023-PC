@@ -1,0 +1,65 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: slcee-arena
+  namespace: slcee-arena
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      k8s.io/app: slcee-arena
+      k8s.io/instance: slcee-arena
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        k8s.io/app: slcee-arena
+        k8s.io/instance: slcee-arena
+    spec:
+      containers:
+      - env:
+        - name: MONGODB_CONN_STRING
+          value: "mongodb://mongodb-replica-0.mongo.slcee-arena.svc.cluster.local:27017,mongodb-replica-0.mongo.slcee-arena.svc.cluster.local:27017"
+        - name: PORT
+          value: "8080"
+        - name: NODE_ENV
+          value: "production"
+        - name: MONGODB_DBNAME
+          value: "spc22"
+        - name: "ADMIN_PASSWORD"
+          value: "somepassword"
+        - name: API_RETRY_TIMEOUT_MS
+          value: "5000"
+        - name: API_RETRY_DELAY_MS
+          value: "100"
+        - name: LOGGING_NO_COLORS
+          value: "true"
+        image: cs-devops.common.repositories.cloud.sap/slcee-arena
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8080
+          name: http
+          protocol: TCP
+        name: arena-server
+        resources:
+          limits:
+            cpu: 200m
+            memory: 500Mi
+          requests:
+            cpu: 20m
+            memory: 50Mi
+      dnsPolicy: ClusterFirst
+      dnsConfig:
+        searches:
+        - mongo.slcee-arena.svc.cluster.local
+      imagePullSecrets:
+      - name: cs-regcred
+      restartPolicy: Always
+      securityContext:
+        runAsUser: 0
+        runAsGroup: 0

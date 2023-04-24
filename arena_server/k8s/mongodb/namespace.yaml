@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  labels:
+    cs.sap.com/disable-karydia: "true"
+    istio-injection: disabled
+    karydia.gardener.cloud/excludeFromKarydia: "true"
+  name: slcee-arena

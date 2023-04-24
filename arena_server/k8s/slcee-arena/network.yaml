@@ -1,0 +1,50 @@
+apiVersion: dns.gardener.cloud/v1alpha1
+kind: DNSEntry
+metadata:
+  annotations:
+    dns.gardener.cloud/class: garden
+  name: slcee-arena
+  namespace: slcee-arena
+spec:
+  cnameLookupInterval: 30
+  dnsName: 'slcee-arena.devops01.eu.canary.clusters.cs.services.sap'
+  targets:
+  - ab3bfd1ce43dd455ca2d2b05756e4333-6e8d869d5bc5e7f7.elb.eu-central-1.amazonaws.com
+  ttl: 600
+---
+apiVersion: cert.gardener.cloud/v1alpha1
+kind: Certificate
+metadata:
+  name: slcee-arena
+  namespace: slcee-arena
+spec:
+  commonName: 'slcee-arena.devops01.eu.canary.clusters.cs.services.sap'
+  secretName: slcee-arena-managed-tls
+  secretRef:
+    name: slcee-arena-managed-tls
+    namespace: slcee-arena
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: slcee-arena
+  namespace: slcee-arena
+spec:
+  ingressClassName: nginx-corporate
+  rules:
+  - host: slcee-arena.devops01.eu.canary.clusters.cs.services.sap
+    http:
+      paths:
+      - backend:
+          service:
+            name: slcee-arena
+            port:
+              number: 8080
+        path: /
+        pathType: Prefix
+  tls:
+  - hosts:
+    - slcee-arena.devops01.eu.canary.clusters.cs.services.sap
+    secretName: slcee-arena-managed-tls
+
+

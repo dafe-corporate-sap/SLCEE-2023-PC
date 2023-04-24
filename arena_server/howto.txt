@@ -17,13 +17,40 @@ sudo chmod 0600 /home/arena/competition/data1/keyFile
 sudo chmod 0600 /home/arena/competition/data2/keyFile
 sudo chmod 0600 /home/arena/competition/data3/keyFile
 
-docker run --rm -d -p 27017:27017 -v /home/arena/competition/data1:/data/db -e MONGO_INITDB_ROOT_USERNAME=mongoadmin -e MONGO_INITDB_ROOT_PASSWORD=secret --name mongo1 --network mongoCluster mongo:5 mongod --replSet myReplicaSet --bind_ip localhost,mongo1 --keyFile /data/db/keyFile
-docker run --rm -d -p 27018:27017 -v /home/arena/competition/data2:/data/db -e MONGO_INITDB_ROOT_USERNAME=mongoadmin -e MONGO_INITDB_ROOT_PASSWORD=secret --name mongo2 --network mongoCluster mongo:5 mongod --replSet myReplicaSet --bind_ip localhost,mongo2 --keyFile /data/db/keyFile
-docker run --rm -d -p 27019:27017 -v /home/arena/competition/data3:/data/db -e MONGO_INITDB_ROOT_USERNAME=mongoadmin -e MONGO_INITDB_ROOT_PASSWORD=secret --name mongo3 --network mongoCluster mongo:5 mongod --replSet myReplicaSet --bind_ip localhost,mongo3 --keyFile /data/db/keyFile
+docker run --rm -d -p 27017:27017 -v /home/i039818/competition/data1:/data/db -e MONGO_INITDB_ROOT_USERNAME=mongoadmin -e MONGO_INITDB_ROOT_PASSWORD=somepassword --name mongo1 --network mongoCluster mongo:5 mongod --replSet myReplicaSet --bind_ip localhost,mongo1 --keyFile /data/db/keyFile
+docker run --rm -d -p 27018:27017 -v /home/i039818/competition/data2:/data/db -e MONGO_INITDB_ROOT_USERNAME=mongoadmin -e MONGO_INITDB_ROOT_PASSWORD=somepassword --name mongo2 --network mongoCluster mongo:5 mongod --replSet myReplicaSet --bind_ip localhost,mongo2 --keyFile /data/db/keyFile
+docker run --rm -d -p 27019:27017 -v /home/i039818/competition/data3:/data/db -e MONGO_INITDB_ROOT_USERNAME=mongoadmin -e MONGO_INITDB_ROOT_PASSWORD=somepassword --name mongo3 --network mongoCluster mongo:5 mongod --replSet myReplicaSet --bind_ip localhost,mongo3 --keyFile /data/db/keyFile
 
-docker run --rm -p 8080:8080 --network mongoCluster arena
+docker run --rm -d -p 8080:8080 --network mongoCluster -e MONGODB_CONN_STRING="mongodb://mongoadmin:secret@mongo1:27017,mongo2:27108,mongo3:27109" -e PORT=8080 -e NODE_ENV=production -e MONGODB_DBNAME=spc22dev -e ADMIN_PASSWORD="somepassword" -e API_RETRY_TIMEOUT_MS="5000" -e API_RETRY_DELAY_MS="100" -e LOGGING_NO_COLORS="true" slcee-arena
+
+docker run --rm -p 8080:8080 --network mongoCluster arena /bin/sh
+
+# connect to mongodb
+docker exec -it mongo1 mongosh -u mongoadmin -p secret
+
+# insert mongo db documents
+
+use spc22dev
 
 -----------------------------
+launch.json
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "npm run dev:test",
+            "cwd": "${workspaceFolder}",
+            "runtimeExecutable": "npm",
+            "runtimeArgs": ["run", "dev:start"]
+        }
+    ]
+}
+----------------------------
 
 # app
 docker run --rm -p 8080:8080 --network mongoCluster arena
@@ -33,14 +60,37 @@ docker run --rm -p 8080:8080 --network mongodb arena
 docker network create mongoCluster
 openssl rand -base64 756 > keyFile
 
-docker run --rm -p 27017:27017 -v /home/i039818/competition/data1:/data/db -e MONGO_INITDB_ROOT_USERNAME=mongoadmin -e MONGO_INITDB_ROOT_PASSWORD=secret --name mongo1 --network mongoCluster mongo:5 mongod --replSet myReplicaSet --bind_ip localhost,mongo1 --keyFile /data/db/keyFile
-docker run --rm -p 27018:27017 -v /home/i039818/competition/data2:/data/db -e MONGO_INITDB_ROOT_USERNAME=mongoadmin -e MONGO_INITDB_ROOT_PASSWORD=secret --name mongo2 --network mongoCluster mongo:5 mongod --replSet myReplicaSet --bind_ip localhost,mongo2 --keyFile /data/db/keyFile
-docker run --rm -p 27019:27017 -v /home/i039818/competition/data3:/data/db -e MONGO_INITDB_ROOT_USERNAME=mongoadmin -e MONGO_INITDB_ROOT_PASSWORD=secret --name mongo3 --network mongoCluster mongo:5 mongod --replSet myReplicaSet --bind_ip localhost,mongo3 --keyFile /data/db/keyFile
+docker run --rm -p 27017:27017 -v /home/i039818/competition/data1:/data/db -e MONGO_INITDB_ROOT_USERNAME=mongoadmin -e MONGO_INITDB_ROOT_PASSWORD=somepassword --name mongo1 --network mongoCluster mongo:5 mongod --replSet myReplicaSet --bind_ip localhost,mongo1 --keyFile /data/db/keyFile
+docker run --rm -p 27018:27017 -v /home/i039818/competition/data2:/data/db -e MONGO_INITDB_ROOT_USERNAME=mongoadmin -e MONGO_INITDB_ROOT_PASSWORD=somepassword --name mongo2 --network mongoCluster mongo:5 mongod --replSet myReplicaSet --bind_ip localhost,mongo2 --keyFile /data/db/keyFile
+docker run --rm -p 27019:27017 -v /home/i039818/competition/data3:/data/db -e MONGO_INITDB_ROOT_USERNAME=mongoadmin -e MONGO_INITDB_ROOT_PASSWORD=somepassword --name mongo3 --network mongoCluster mongo:5 mongod --replSet myReplicaSet --bind_ip localhost,mongo3 --keyFile /data/db/keyFile
 
 docker exec -it mongo1 mongosh -u mongoadmin -p secret
 rs.initiate({_id: "myReplicaSet", members: [{_id: 0, host: "mongo1"}, {_id: 1, host: "mongo2"}, {_id: 2, host: "mongo3"}]})
 
-
-
 docker network create mongodb
 docker run --rm --name mongodb -p 27017:27017 --network mongodb -v /home/i039818/competition/mongodbdata:/data/db mongodb/mongodb-community-server:$MONGODB_VERSION
+
+
+### 
+kubectl delete -f /home/i039818/competition/SLCEE-2023-PC/arena_server/k8s/mongodb/statefulset.yaml
+kubectl delete pvc mongo-data-mongodb-replica-0 mongo-data-mongodb-replica-1 -n slcee-arena
+
+kubectl apply -f /home/i039818/competition/SLCEE-2023-PC/arena_server/k8s/mongodb/statefulset.yaml
+
+
+mongosh -u $MONGO_INITDB_ROOT_USERNAME -p $MONGO_INITDB_ROOT_PASSWORD --authenticationDatabase "admin" --port 27017
+
+rs.initiate({_id: "rs0", members: [{_id: 0, host: "mongodb-replica-0.mongo:27017"}, {_id: 1, host: "mongodb-replica-1.mongo:27017"}]})
+https://medium.com/geekculture/installing-mongodb-on-kubernetes-with-replica-sets-and-no-mongodb-operator-ed8d7f3bb2d1
+
+
+###
+use spc22
+
+db.players.insertOne({"name":"Dano","country":"SK","passwordhash":"somepassword"})
+db.players.insertOne({"name":"Miso","country":"SK","passwordhash":"somepassword"})
+db.players.insertOne({"name":"Gusto","country":"SK","passwordhash":"somepassword"})
+db.players.insertOne({"name":"User","country":"SK","passwordhash":"somepassword"})
+
+
+

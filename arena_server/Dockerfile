@@ -9,16 +9,21 @@ RUN apt-get update && apt-get install -y ca-certificates wget \
     && update-ca-certificates
 
 WORKDIR /usr/arena/
-COPY ./ /usr/arena/
+COPY src/ /usr/arena/src/
+COPY tools/ /usr/arena/tools/
+COPY package.json /usr/arena/
+COPY package-lock.json /usr/arena/
+COPY tsconfig.json /usr/arena/
+COPY tslint.json /usr/arena/
+COPY tsoa.json /usr/arena/
 
 RUN ["npm", "install"]
 RUN ["npm", "run", "build", "--if-present"]
-RUN ["npm", "run", "test", "--if-present"]
 
-#RUN ["chown", "-R", "node:node", "/usr/arena/"]
-#USER node
+RUN ["chown", "-R", "node:node", "/usr/arena/"]
+USER node
 
 EXPOSE 8080
 
 # execute cds start script
-CMD ["npm", "run", "dev:start"]
+CMD ["npm", "run", "start"]
